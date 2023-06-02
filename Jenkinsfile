@@ -1,28 +1,22 @@
 pipeline {
-    agent any
-    
-    stages {
-        stage('Construir Imagen Docker') {
-            steps {
-                script {
-                    def imageName = "glassfish"
-                    echo "Creando imagen a partir del Dockerfile..."
-                    docker.build(imageName, "-f")
-                }
-            }
-        }
-        
-        stage('Ejecutar Contenedor Docker') {
-            steps {
-                script {
-                    def imageName = "glassfish"
-                    def containerName = "glassfish-deploy"
-                    
-                    echo "Arrancando el contenedor..."
-                    docker.image(imageName).run("--name ${containerName} -d")
-                }
-            }
-        }
-        
+  agent any
+
+  stages {
+    stage('Build') {
+      steps {
+        sh 'docker build -t glassfish:1.0 .'
+      }
     }
+    stage('Publish') {
+      steps {
+        sh 'docker tag glassfish:1.0 localhost:5000/repo-docker:1.0'
+        sh 'docker push localhost:5000/repo-docker:1.0'
+      }
+    }
+    stage('Run Container') {
+      steps {
+        sh 'docker run -d -p 7070:8080 --name mi-contenedor localhost:5000/repo-docker:1.0'
+      }
+    }
+  }
 }
