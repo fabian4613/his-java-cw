@@ -1,4 +1,4 @@
-FROM amazoncorretto:8-al2-jdk
+FROM localhost:5000/amazoncorretto:8-al2-jdk
 
 ENV  JAVA_HOME         /usr/lib/jvm/java-1.8.0-amazon-corretto
 ENV  GLASSFISH_HOME    /usr/local/glassfish5
