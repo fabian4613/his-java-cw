@@ -4,6 +4,7 @@ pipeline {
   stages {
     stage('Construir') {
       steps {
+        sh 'sudo su'
         sh 'sudo docker build -t glassfish:1.0 .'
       }
     }
