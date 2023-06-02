@@ -25,5 +25,7 @@ WORKDIR     /var/app
 ADD         glassfish-start.sh /
 ADD         . /var/app/
 
+RUN chmod +x /glassfish-start.sh
+
 CMD         []
 ENTRYPOINT  ["/glassfish-start.sh"]
