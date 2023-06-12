@@ -25,7 +25,7 @@ pipeline {
       steps {
         script {
           telegramSend(message: 'Creando Contenedor en base a la imagen', chatId: '5488922521')
-          sh 'docker run -d -p 7070:8080 --name mi-contenedor3 localhost:5000/repo-docker:gfsh2.0'
+          sh 'docker run -d -p 7070:8080 --name mi-contenedor4 localhost:5000/repo-docker:gfsh2.0'
           telegramSend(message: 'Proceso docker finalizado correctamente', chatId: '5488922521')
         }
       }
