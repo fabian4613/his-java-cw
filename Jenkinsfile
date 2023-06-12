@@ -4,7 +4,7 @@ pipeline {
   stages {
     stage('Construir') {
       steps {
-        sh 'docker build -t glassfish:1.0 .'
+        sh 'docker build -t glassfish:gfsh2.0 .'
       }
     }
     stage('Publicar') {
