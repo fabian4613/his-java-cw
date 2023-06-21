@@ -33,14 +33,14 @@ pipeline {
         }
       }
     }
-
+    
     stage('Actualizar Contenedor') {
       steps {
         script {
           // Verificar si el contenedor ya existe
           def containerExists = sh(script: 'docker ps -a --filter "name=app_java" --format "{{.Names}}"', returnStatus: true)
-
-          if (containerExists == 0) {
+    
+          if (containerExists != 0) {
             echo 'Deteniendo y eliminando el contenedor app_java existente'
             sh 'docker stop app_java'
             sh 'docker rm app_java'
@@ -52,6 +52,7 @@ pipeline {
         }
       }
     }
+
 
   }
 }
