@@ -5,13 +5,14 @@ pipeline {
     stage('Setup') {
       steps {
         script {
-          telegramSend(message: 'Configurando Docker Registry', chatId: '5488922521')
-          def containerExists = sh(returnStdout: true, script: 'docker ps -a --format "{{.Names}}" | grep -w registry').trim()
-          
-          if (containerExists) {
-            telegramSend(message: 'El contenedor del Docker Registry ya existe. Saltando configuración.', chatId: '5488922521')
+          // Configuración del Docker Registry
+          def registryExists = sh(script: 'docker ps -a --filter "name=registry" --format "{{.Names}}"', returnStatus: true)
+
+          if (registryExists != 0) {
+            echo 'Configurando Docker Registry'
+            sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
           } else {
-            sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2' // Crea un contenedor de Docker Registry
+            echo 'El contenedor registry ya existe'
           }
         }
       }
@@ -20,32 +21,55 @@ pipeline {
     stage('Construir') {
       steps {
         script {
-          telegramSend(message: 'Construyendo Imagen con Dockerfile', chatId: '5488922521')
-          sh 'docker build -t appjava:1.0 .'  // Construye la imagen con el nombre "appjava:1.0"
+          // Verificar si la imagen ya existe
+          def imageExists = sh(script: 'docker image inspect appjava:1.0', returnStatus: true)
+
+          if (imageExists == 0) {
+            echo 'La imagen appjava:1.0 ya existe'
+          } else {
+            echo 'Construyendo la imagen appjava:1.0'
+            sh 'docker build -t appjava:1.0 .'
+          }
         }
       }
     }
 
-    stage('Publicar') {
+    stage('Actualizar Contenedor') {
       steps {
         script {
-          // Push de la imagen al Docker Registry
-          sh 'docker tag appjava:1.0 localhost:5000/appjava:1.0'
-          sh 'docker push localhost:5000/appjava:1.0'
+          // Verificar si el contenedor ya existe
+          def containerExists = sh(script: 'docker ps -a --filter "name=app_java" --format "{{.Names}}"', returnStatus: true)
 
-          // Eliminación de la imagen local
-          sh 'docker rmi appjava:1.0'
+          if (containerExists == 0) {
+            echo 'Deteniendo y eliminando el contenedor app_java existente'
+            sh 'docker stop app_java'
+            sh 'docker rm app_java'
+          }
+
+          // Crear un nuevo contenedor app_java con la imagen actualizada
+          echo 'Creando un nuevo contenedor app_java con la imagen actualizada'
+          sh 'docker run -d -p 7070:8080 --name app_java appjava:1.0'
         }
       }
     }
-    stage('Run Container') {
+
+    stage('Crear Contenedor') {
       steps {
         script {
-          telegramSend(message: 'Creando Contenedor en base a la imagen', chatId: '5488922521')
-          sh 'docker run -d -p 7070:8080 --name app_java localhost:5000/appjava:1.0'  // Crea y ejecuta un contenedor a partir de la imagen
-          telegramSend(message: 'Proceso docker finalizado correctamente', chatId: '5488922521')
+          // Verificar si el contenedor ya existe
+          def containerExists = sh(script: 'docker ps -a --filter "name=app_java" --format "{{.Names}}"', returnStatus: true)
+
+          if (containerExists != 0) {
+            // Crear un nuevo contenedor app_java con la imagen actualizada
+            echo 'Creando un nuevo contenedor app_java con la imagen actualizada'
+            sh 'docker run -d -p 7070:8080 --name app_java appjava:1.0'
+          } else {
+            echo 'El contenedor app_java ya existe'
+          }
         }
       }
     }
+
+    // Resto de las etapas...
   }
 }
