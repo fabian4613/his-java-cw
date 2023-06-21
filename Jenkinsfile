@@ -6,7 +6,13 @@ pipeline {
       steps {
         script {
           telegramSend(message: 'Configurando Docker Registry', chatId: '5488922521')
-          sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2' // Crea un contenedor de Docker Registry
+          def containerExists = sh(returnStdout: true, script: 'docker ps -a --format "{{.Names}}" | grep -w registry').trim()
+          
+          if (containerExists) {
+            telegramSend(message: 'El contenedor del Docker Registry ya existe. Saltando configuración.', chatId: '5488922521')
+          } else {
+            sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2' // Crea un contenedor de Docker Registry
+          }
         }
       }
     }
