@@ -2,11 +2,20 @@ pipeline {
   agent any
 
   stages {
+    stage('Setup') {
+      steps {
+        script {
+          telegramSend(message: 'Configurando Docker Registry', chatId: '5488922521')
+          sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2' // Crea un contenedor de Docker Registry
+        }
+      }
+    }
+
     stage('Construir') {
       steps {
         script {
           telegramSend(message: 'Construyendo Imagen con Dockerfile', chatId: '5488922521')
-          sh 'docker build -t glassfish:gfsh2.0 .'
+          sh 'docker build -t glassfish:gfsh2.0 .'  // Construye la imagen con el nombre "glassfish:gfsh2.0"
         }
       }
     }
@@ -15,8 +24,8 @@ pipeline {
       steps {
         script {
           telegramSend(message: 'Publicando Imagen en Repo Local (Docker Registry)', chatId: '5488922521')
-          sh 'docker tag glassfish:gfsh2.0 localhost:5000/repo-docker:gfsh2.0'
-          sh 'docker push localhost:5000/repo-docker:gfsh2.0'
+          sh 'docker tag glassfish:gfsh2.0 localhost:5000/repo-docker:gfsh2.0'  // Asigna una etiqueta a la imagen
+          sh 'docker push localhost:5000/repo-docker:gfsh2.0'  // Envía la imagen al repositorio local
         }
       }
     }
@@ -25,7 +34,7 @@ pipeline {
       steps {
         script {
           telegramSend(message: 'Creando Contenedor en base a la imagen', chatId: '5488922521')
-          sh 'docker run -d -p 7070:8080 --name mi-contenedor4 localhost:5000/repo-docker:gfsh2.0'
+          sh 'docker run -d -p 7070:8080 --name mi-contenedor4 localhost:5000/repo-docker:gfsh2.0'  // Crea y ejecuta un contenedor a partir de la imagen
           telegramSend(message: 'Proceso docker finalizado correctamente', chatId: '5488922521')
         }
       }
