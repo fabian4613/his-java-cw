@@ -38,20 +38,31 @@ pipeline {
       steps {
         script {
           // Verificar si el contenedor ya existe
-          def containerExists = sh(script: 'docker ps -a --filter "name=app_java" --format "{{.Names}}"', returnStatus: true)
+          def containerName = "app_java"
+          def existingContainerId = sh(script: "docker ps -aqf \"name=${containerName}\"", returnStdout: true).trim()
     
-          if (containerExists != 0) {
-            echo 'Deteniendo y eliminando el contenedor app_java existente'
-            sh 'docker stop app_java'
-            sh 'docker rm app_java'
+          if (existingContainerId) {
+            // Obtener el estado del contenedor existente
+            def containerState = sh(script: "docker inspect -f '{{.State.Status}}' ${existingContainerId}", returnStdout: true).trim()
+    
+            if (containerState == 'running') {
+              echo 'Deteniendo el contenedor app_java existente'
+              sh "docker stop ${existingContainerId}"
+            }
+    
+            echo 'Eliminando el contenedor app_java existente'
+            sh "docker rm ${existingContainerId}"
           } else {
-            // Crear un nuevo contenedor app_java con la imagen actualizada
-            echo 'Creando un nuevo contenedor app_java con la imagen actualizada'
-            sh 'docker run -d -p 7070:8080 --name app_java appjava:1.0'
+            echo 'El contenedor app_java no existe'
           }
+    
+          // Crear un nuevo contenedor app_java con la imagen actualizada
+          echo 'Creando un nuevo contenedor app_java con la imagen actualizada'
+          sh 'docker run -d -p 7070:8080 --name app_java appjava:1.0'
         }
       }
     }
+
 
 
   }
