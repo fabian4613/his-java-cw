@@ -29,13 +29,15 @@ pipeline {
     stage('Publicar') {
       steps {
         script {
-          telegramSend(message: 'Publicando Imagen en Repo Local (Docker Registry)', chatId: '5488922521')
-          sh 'docker tag appjava:1.0 localhost:5000/appjava:1.0'  // Asigna una etiqueta a la imagen
-          sh 'docker push localhost:5000/appjava:1.0'  // Envía la imagen al repositorio local
+          // Push de la imagen al Docker Registry
+          sh 'docker tag appjava:1.0 localhost:5000/appjava:1.0'
+          sh 'docker push localhost:5000/appjava:1.0'
+
+          // Eliminación de la imagen local
+          sh 'docker rmi appjava:1.0'
         }
       }
     }
-
     stage('Run Container') {
       steps {
         script {
