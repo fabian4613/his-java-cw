@@ -13,7 +13,7 @@ pipeline {
     }
 
     // Etapa para publicar la imagen en el repositorio local (Docker Registry)
-    stage('Publicar') {
+    stage('hernan') {
       steps {
         script {
           telegramSend(message: 'Publicando Imagen en Repo Local (Docker Registry)', chatId: '5488922521')
