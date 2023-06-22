@@ -2,36 +2,68 @@ pipeline {
   agent any
 
   stages {
-    // Etapa para construir la imagen del contenedor
+    stage('Setup') {
+      steps {
+        script {
+          // Configuración del Docker Registry
+          def registryExists = sh(script: 'docker ps -a --filter "name=registry" --format "{{.Names}}"', returnStatus: true)
+
+          if (registryExists != 0) {
+            echo 'Configurando Docker Registry'
+            sh 'docker run -d -p 5000:5000 --restart=always --name registry registry:2'
+          } else {
+            echo 'El contenedor registry ya existe'
+          }
+        }
+      }
+    }
+
     stage('Construir') {
       steps {
         script {
-          telegramSend(message: 'Construyendo Imagen con Dockerfile', chatId: '5488922521')
-          sh 'docker build -t glassfish:gfsh2.0 .'  // Construye la imagen con el nombre "glassfish:gfsh2.0"
+          // Verificar si la imagen ya existe
+          def imageExists = sh(script: 'docker image inspect appjava:1.0', returnStatus: true)
+
+          if (imageExists == 0) {
+            echo 'La imagen appjava:1.0 ya existe'
+          } else {
+            echo 'Construyendo la imagen appjava:1.0'
+            sh 'docker build -t appjava:1.0 .'
+          }
+        }
+      }
+    }
+    
+    stage('Actualizar Contenedor') {
+      steps {
+        script {
+          // Verificar si el contenedor ya existe
+          def containerName = "app_java"
+          def existingContainerId = sh(script: "docker ps -aqf \"name=${containerName}\"", returnStdout: true).trim()
+    
+          if (existingContainerId) {
+            // Obtener el estado del contenedor existente
+            def containerState = sh(script: "docker inspect -f '{{.State.Status}}' ${existingContainerId}", returnStdout: true).trim()
+    
+            if (containerState == 'running') {
+              echo 'Deteniendo el contenedor app_java existente'
+              sh "docker stop ${existingContainerId}"
+            }
+    
+            echo 'Eliminando el contenedor app_java existente'
+            sh "docker rm ${existingContainerId}"
+          } else {
+            echo 'El contenedor app_java no existe'
+          }
+    
+          // Crear un nuevo contenedor app_java con la imagen actualizada
+          echo 'Creando un nuevo contenedor app_java con la imagen actualizada'
+          sh 'docker run -d -p 7070:8080 --name app_java appjava:1.0'
         }
       }
     }
 
-    // Etapa para publicar la imagen en el repositorio local (Docker Registry)
-    stage('hernan') {
-      steps {
-        script {
-          telegramSend(message: 'Publicando Imagen en Repo Local (Docker Registry)', chatId: '5488922521')
-          sh 'docker tag glassfish:gfsh2.0 localhost:5000/repo-docker:gfsh2.0'  // Asigna una etiqueta a la imagen
-          sh 'docker push localhost:5000/repo-docker:gfsh2.0'  // Envía la imagen al repositorio local
-        }
-      }
-    }
 
-    // Etapa para ejecutar el contenedor a partir de la imagen
-    stage('Run Container') {
-      steps {
-        script {
-          telegramSend(message: 'Creando Contenedor en base a la imagen', chatId: '5488922521')
-          sh 'docker run -d -p 7070:8080 --name mi-contenedor4 localhost:5000/repo-docker:gfsh2.0'  // Crea y ejecuta un contenedor a partir de la imagen
-          telegramSend(message: 'Proceso docker finalizado correctamente', chatId: '5488922521')
-        }
-      }
-    }
+
   }
 }
