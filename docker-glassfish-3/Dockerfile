@@ -38,5 +38,8 @@ COPY docker-entrypoint.sh $GLASSFISH_HOME/
 # Copy the local WAR files to GlassFish autodeploy directory
 COPY prueba2grupo1.war prueba2grupo2.war $GLASSFISH_HOME/glassfish/domains/domain1/autodeploy/
 
+# set entrypoint
+ENTRYPOINT ["./docker-entrypoint.sh"]
+
 # Start the GlassFish domain
 CMD asadmin start-domain --verbose
