@@ -31,11 +31,6 @@ COPY prueba2grupo1.war prueba2grupo2.war $GLASSFISH_HOME/glassfish/domains/domai
 
 # Set the entrypoint script as executable
 RUN chmod +x $GLASSFISH_HOME/docker-entrypoint.sh
-
-# ADD New Cert
-# Get latest cacerts from OpenJDK project
-RUN wget https://hg.openjdk.java.net/jdk/jdk/raw-file/tip/src/java.base/share/lib/security/cacerts && \
-    mv cacerts $GLASSFISH_HOME/domains/domain1/config/cacerts.jks
     
 # Set the entrypoint
 ENTRYPOINT ["./docker-entrypoint.sh"]
