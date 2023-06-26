@@ -49,7 +49,10 @@ $GLASSFISH_HOME/glassfish/bin/keytool -delete -alias dummy -keystore $CACERTS_FI
 # Generar certificado autofirmado
 $GLASSFISH_HOME/glassfish/bin/keytool -genkeypair -alias $CERTIFICATE_ALIAS -keystore $KEYSTORE_FILE -storepass $KEYSTORE_PASSWORD -keypass $CERTIFICATE_PASSWORD -dname "CN=Fabian" -validity 365
 
-# Iniciar el dominio
-$GLASSFISH_HOME/bin/asadmin start-domain
+# Iniciar el dominio en segundo plano
+$GLASSFISH_HOME/bin/asadmin start-domain &
+
+# Mantener el contenedor en ejecución
+tail -f /dev/null
 
 echo "¡Contraseña maestra de administrador creada y almacén de claves JKS creados con éxito!"
