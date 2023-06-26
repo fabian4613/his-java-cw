@@ -21,11 +21,19 @@ RUN wget -q -O $GLASSFISH_PKG $GLASSFISH_URL && \
 # Ports being exposed
 EXPOSE 4848 8080 8181
 
-WORKDIR /usr/local/glassfish3
+WORKDIR $GLASSFISH_HOME
 
-# Copy in and set the entrypoint
+# Copy the entrypoint script
 COPY docker-entrypoint.sh $GLASSFISH_HOME/
-ENTRYPOINT ["/usr/local/glassfish3/docker-entrypoint.sh"]
+
+# Copy the local WAR files to GlassFish autodeploy directory
+COPY prueba2grupo1.war prueba2grupo2.war $GLASSFISH_HOME/glassfish/domains/domain1/autodeploy/
+
+# Set the entrypoint script as executable
+RUN chmod +x $GLASSFISH_HOME/docker-entrypoint.sh
+
+# Set the entrypoint
+ENTRYPOINT ["./docker-entrypoint.sh"]
 
 # Start the GlassFish domain
 CMD ["asadmin", "start-domain", "--verbose"]
