@@ -41,6 +41,9 @@ COPY generateSSL.sh $GLASSFISH_HOME/
 # Copy the local WAR files to GlassFish autodeploy directory
 COPY prueba2grupo1.war prueba2grupo2.war $GLASSFISH_HOME/glassfish/domains/domain1/autodeploy/
 
+# Set the entrypoint script as executable
+RUN chmod +x $GLASSFISH_HOME/docker-entrypoint.sh
+RUN chmod +x $GLASSFISH_HOME/generateSSL.sh
 
 
 # Start GlassFish domain and generate SSL
