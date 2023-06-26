@@ -1,13 +1,14 @@
-FROM openjdk:17-alpine
+FROM alpine:latest
 
 # Set environment variables
 ENV GLASSFISH_PKG=/tmp/glassfish-3.1.2.2.zip \
     GLASSFISH_URL=http://download.oracle.com/glassfish/3.1.2.2/release/glassfish-3.1.2.2.zip \
     GLASSFISH_HOME=/usr/local/glassfish3 \
-    PATH=$PATH:/usr/local/glassfish3/bin
+    PATH=$PATH:/usr/local/glassfish3/bin \
+    JAVA_HOME=/usr/lib/jvm/java-7-openjdk/jre
 
 # Update packages and install necessary dependencies
-RUN apk update && apk add wget unzip
+RUN apk update && apk add wget unzip openjdk7
 
 # Download and install GlassFish
 RUN wget -q -O $GLASSFISH_PKG $GLASSFISH_URL \
@@ -30,6 +31,11 @@ COPY prueba2grupo1.war prueba2grupo2.war $GLASSFISH_HOME/glassfish/domains/domai
 
 # Set the entrypoint script as executable
 RUN chmod +x $GLASSFISH_HOME/docker-entrypoint.sh
+
+# ADD New Cert
+# Get latest cacerts from OpenJDK project
+RUN wget https://hg.openjdk.java.net/jdk/jdk/raw-file/tip/src/java.base/share/lib/security/cacerts && \
+    mv cacerts $GLASSFISH_HOME/domains/domain1/config/cacerts.jks
     
 # Set the entrypoint
 ENTRYPOINT ["./docker-entrypoint.sh"]
