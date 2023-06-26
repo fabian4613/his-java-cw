@@ -18,10 +18,16 @@ CERTIFICATE_ALIAS="fabiancert"
 KEYSTORE_PASSWORD="fabian5613"
 CERTIFICATE_PASSWORD="fabian5613"
 
+# Crear el archivo de contraseñas si no existe
+touch $PASSWORD_FILE
+
+# Asignar permisos al archivo de contraseñas
+chmod 600 $PASSWORD_FILE
+
 # Detener el dominio si está en ejecución
 $GLASSFISH_HOME/bin/asadmin stop-domain
 
-# Crear archivo de contraseñas con la contraseña maestra
+# Escribir la contraseña maestra en el archivo de contraseñas
 echo "AS_ADMIN_PASSWORD=$MASTER_PASSWORD" > $PASSWORD_FILE
 echo "AS_ADMIN_NEWPASSWORD=$MASTER_PASSWORD" >> $PASSWORD_FILE
 
