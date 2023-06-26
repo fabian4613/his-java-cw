@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM ubuntu:14.04
 
 # Set environment variables
 ENV GLASSFISH_PKG=/tmp/glassfish-3.1.2.2.zip \
@@ -8,17 +8,25 @@ ENV GLASSFISH_PKG=/tmp/glassfish-3.1.2.2.zip \
     JAVA_HOME=/usr/lib/jvm/java-6-openjdk
 
 # Update packages and install necessary dependencies
-RUN apk update && apk add wget unzip openjdk6
+RUN apt-get update && apt-get install -y wget unzip expect
 
+# Download and install OpenJDK 6
+RUN apt-get install -y openjdk-6-jdk
+
+# Create the GlassFish directory and set permissions
+RUN mkdir -p $GLASSFISH_HOME
 
 # Download and install GlassFish
-RUN wget -q -O $GLASSFISH_PKG $GLASSFISH_URL \
-    && unzip -o $GLASSFISH_PKG -d /usr/local \
-    && rm -f $GLASSFISH_PKG \
-    && cd $GLASSFISH_HOME \
-    && find . -name '*.bat' -delete \
-    && find . -name '*.exe' -delete
-
+RUN wget -q -O $GLASSFISH_PKG $GLASSFISH_URL && \
+    echo "$MD5 *$GLASSFISH_PKG" | md5sum -c - && \
+    unzip -o $GLASSFISH_PKG -d /usr/local && \
+    rm -f $GLASSFISH_PKG && \
+    \
+    # Remove Windows .bat and .exe files to save space
+    cd $GLASSFISH_HOME && \
+    find . -name '*.bat' -delete && \
+    find . -name '*.exe' -delete
+    
 # Ports being exposed
 EXPOSE 4848 8080 8181 8181
 
