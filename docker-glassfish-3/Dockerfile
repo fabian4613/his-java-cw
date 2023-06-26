@@ -39,4 +39,4 @@ COPY docker-entrypoint.sh $GLASSFISH_HOME/
 COPY prueba2grupo1.war prueba2grupo2.war $GLASSFISH_HOME/glassfish/domains/domain1/autodeploy/
 
 # Start the GlassFish domain
-CMD ["asadmin", "start-domain", "--verbose"]
+CMD asadmin start-domain --verbose
