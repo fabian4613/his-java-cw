@@ -4,7 +4,7 @@ FROM alpine:latest
 ENV GLASSFISH_PKG=/tmp/glassfish-3.1.2.2.zip \
     GLASSFISH_URL=http://download.oracle.com/glassfish/3.1.2.2/release/glassfish-3.1.2.2.zip \
     GLASSFISH_HOME=/usr/local/glassfish3 \
-    PATH=$PATH:/usr/local/glassfish3/bin 
+    PATH=$PATH:/usr/local/glassfish3/bin \
     JAVA_HOME=/usr/lib/jvm/java-6-openjdk
 
 # Update packages and install necessary dependencies
