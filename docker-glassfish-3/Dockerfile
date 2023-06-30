@@ -26,7 +26,11 @@ RUN wget -q -O $GLASSFISH_PKG $GLASSFISH_URL && \
     cd $GLASSFISH_HOME && \
     find . -name '*.bat' -delete && \
     find . -name '*.exe' -delete
-    
+
+# Establece las variables de entorno en asenv.conf
+RUN echo "AS_JAVA=/usr/lib/jvm/java-8-openjdk-amd64" >> $GLASSFISH_HOME/glassfish/domains/domain1/config/asenv.conf && \
+    echo "OTRA_VARIABLE=valor" >> $GLASSFISH_HOME/glassfish/domains/domain1/config/asenv.conf
+
 # Ports being exposed
 EXPOSE 4848 8080 8181 8181
 
